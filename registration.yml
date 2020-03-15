@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: registration
+  labels:
+    app: registration
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: registration
+  template:
+    metadata:
+      labels:
+        app: registration
+    spec:
+      containers:
+      - name: registration
+        image: duelers/registration:latest
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+          - name: foo
+            mountPath: "/var/config/"
+            readOnly: true
+      volumes:
+      - name: foo
+        secret:
+          secretName: registration
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: registration
+spec:
+  type: NodePort
+  selector:
+    app: registration
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+      nodePort: 30081
